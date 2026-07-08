@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Employee Attrition Prediction</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Employee Attrition Prediction</h1>
+    <img src="{{ url_for('static', filename='robot.webp') }}" class="robot">
+    <div class="accuracy-container">
+    <h3>Model Accuracy</h3>
+    <div class="progress">
+        <div class="progress-bar">83.67%</div>
+    </div>
+
+    <form method="POST">
+
+        <label>Age</label>
+        <input type="number" name="Age" required>
+
+        <label>Monthly Income</label>
+        <input type="number" name="MonthlyIncome" required>
+
+        <label>Total Working Years</label>
+        <input type="number" name="TotalWorkingYears" required>
+
+        <button type="submit">Predict</button>
+
+    </form>
+    <div id="loading" style="display:none;">
+        <div class="loader"></div>
+        <p>Predicting...</p>
+    </div>
+
+
+    {% if prediction %}
+    <div class="result-box">
+        <h2>Prediction Result</h2>
+        <h3>{{ prediction }}</h3>
+        {% if prediction == "Employee is likely to Stay" %}
+<div class="risk low">
+    🟢 Risk Level: Low
+</div>
+{% else %}
+<div class="risk high">
+    🔴 Risk Level: High
+</div>
+{% endif %}
+    </div>
+    {% endif %}
+
+</div>
+<canvas id="pieChart" width="180" height="180"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById('pieChart');
+
+new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Stay', 'Leave'],
+        datasets: [{
+            data: [84, 16],
+            backgroundColor: [
+                '#28a745',
+                '#dc3545'
+            ]
+        }]
+    },
+    options: {
+        responsive: false,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: 'Employee Attrition Overview'
+            },
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+<button type="reset" class="reset-btn">Reset</button>
+<script>
+document.querySelector("form").addEventListener("submit", function () {
+    document.getElementById("loading").style.display = "block";
+});
+</script>
+{% if prediction %}
+<h2 class="Summary-title">Prediction Summary</h2>
+
+<table class="history-table">
+    <tr>
+        <th>Age</th>
+        <th>Income</th>
+        <th>Experience</th>
+        <th>Prediction</th>
+        <th>Date & Time</th>
+    </tr>
+
+    <tr>
+        <td>{{ request.form['Age'] }}</td>
+        <td>{{ request.form['MonthlyIncome'] }}</td>
+        <td>{{ request.form['TotalWorkingYears'] }}</td>
+        <td class="prediction-success ✅"> {{ prediction }}</td>
+    </tr>
+</table>
+{% endif %}
+<a href="/download_report" class="download-btn">📄 Download Report</a>
+<div class="dashboard-cards">
+    <div class="card">
+        <h3>Total Predictions</h3>
+        <h2>{{ total_predictions }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Stay Count</h3>
+        <h2>{{ stay_count }}</h2>
+    </div>
+
+    <div class="card">
+        <h3>Leave Count</h3>
+        <h2>{{ leave_count }}</h2>
+    </div>
+</div>
+{% if history %}
+<h2>Prediction History</h2>
+<a href="/clear_history" class="clear-btn">
+    🗑 Clear History
+</a>
+
+<table class="history-table">
+    <tr>
+        <th>Age</th>
+        <th>Income</th>
+        <th>Experience</th>
+        <th>Prediction</th>
+        <th>Date & Time</th>
+    </tr>
+
+    {% for row in history %}
+    <tr>
+        <td>{{ row.Age }}</td>
+        <td>{{ row.Income }}</td>
+        <td>{{ row.Experience }}</td>
+        <td>{{ row.Prediction }}</td>
+        <td>{{ row.DateTime }}</td>
+
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+<footer>
+    <p>© 2026  AttriSense AI Powered by Machine Learning | Developed by Thivyaa KS</p>
+</footer>
+</body>
+</html>
